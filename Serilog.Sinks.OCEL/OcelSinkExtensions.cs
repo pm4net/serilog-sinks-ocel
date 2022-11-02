@@ -5,15 +5,20 @@ using System.Text;
 using System.Threading.Tasks;
 using Serilog.Configuration;
 using Serilog.Formatting;
+using Serilog.Sinks.OCEL.Enums;
 using Serilog.Sinks.PeriodicBatching;
 
 namespace Serilog.Sinks.OCEL
 {
     public static class OcelSinkExtensions
     {
-        public static LoggerConfiguration OcelSink(this LoggerSinkConfiguration configuration, string connectionString, ITextFormatter textFormatter)
+        public static LoggerConfiguration OcelSink(
+            this LoggerSinkConfiguration configuration,
+            OutputFormat format,
+            string connectionString,
+            ITextFormatter textFormatter)
         {
-            var ocelSink = new OcelSink(connectionString, textFormatter);
+            var ocelSink = new OcelSink(format, connectionString, textFormatter);
             var batchingOptions = new PeriodicBatchingSinkOptions
             {
                 BatchSizeLimit = 50,

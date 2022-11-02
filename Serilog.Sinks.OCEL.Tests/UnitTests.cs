@@ -2,13 +2,14 @@ using System.Globalization;
 using LiteDB;
 using Serilog.Core;
 using Serilog.Formatting.Json;
+using Serilog.Sinks.OCEL.Enums;
 using Xunit.Abstractions;
 
 namespace Serilog.Sinks.OCEL.Tests
 {
     public class UnitTests : IDisposable
     {
-        private static readonly string FilePath = "../../../unit-tests._db";
+        private static readonly string FilePath = "../../../unit-tests.db";
         private static readonly string LiteDbConnection = $"Filename={FilePath};";
         private static readonly string InMemoryConnection = "Filename=:memory:;";
 
@@ -20,7 +21,7 @@ namespace Serilog.Sinks.OCEL.Tests
             _db = new LiteDatabase(LiteDbConnection);
             _logger = new LoggerConfiguration()
                 .MinimumLevel.Information()
-                .WriteTo.OcelSink(LiteDbConnection, new JsonFormatter())
+                .WriteTo.OcelSink(OutputFormat.LiteDb, LiteDbConnection, new JsonFormatter())
                 .CreateLogger();
         }
 

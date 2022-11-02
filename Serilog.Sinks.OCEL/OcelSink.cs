@@ -2,34 +2,39 @@
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting;
+using Serilog.Sinks.OCEL.Emitters;
+using Serilog.Sinks.OCEL.Enums;
 using Serilog.Sinks.PeriodicBatching;
 
 namespace Serilog.Sinks.OCEL
 {
     public class OcelSink : IBatchedLogEventSink
     {
-        private readonly string _connectionString;
+        private readonly OutputFormat _format;
+        private readonly string _filePath;
         private readonly ITextFormatter _formatter;
 
-        public OcelSink(string connectionString, ITextFormatter formatter)
+        public OcelSink(
+            OutputFormat format,
+            string filePath,
+            ITextFormatter formatter)
         {
-            _connectionString = connectionString;
+            _format = format;
+            _filePath = filePath;
             _formatter = formatter;
         }
 
-        public Task EmitBatchAsync(IEnumerable<LogEvent> batch)
+        public async Task EmitBatchAsync(IEnumerable<LogEvent> batch)
         {
-            using var db = new LiteDatabase(_connectionString);
-            ILiteCollection<BsonDocument> collection = db.GetCollection("log");
-            collection.Insert(batch.Select(e => AsDocument(e, _formatter)));
-            return Task.CompletedTask;
-
-            BsonDocument AsDocument(LogEvent @event, ITextFormatter formatter)
+            Emitter emitter = _format switch
             {
-                var sw = new StringWriter();
-                formatter.Format(@event, sw);
-                return JsonSerializer.Deserialize(new StringReader(sw.ToString())).AsDocument;
-            }
+                OutputFormat.LiteDb => new LiteDbEmitter(_filePath, _formatter),
+                OutputFormat.Xml => new XmlEmitter(_filePath, _formatter),
+                OutputFormat.Json => new JsonEmitter(_filePath, _formatter),
+                _ => throw new ArgumentOutOfRangeException(nameof(_format))
+            };
+
+            await emitter.EmitBatch(batch);
         }
 
         public Task OnEmptyBatchAsync()

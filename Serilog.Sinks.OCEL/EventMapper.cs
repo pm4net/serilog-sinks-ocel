@@ -80,10 +80,13 @@ namespace Serilog.Sinks.OCEL
                             vMap[property.Key] = scalarValue.MapScalarValue();
                             break;
                         case StructureValue structureValue:
+                            // TODO: Pending OCEL list/mapping implementation
                             break;
                         case SequenceValue sequenceValue:
+                            // TODO: Pending OCEL list/mapping implementation
                             break;
                         case DictionaryValue dictionaryValue:
+                            // TODO: Pending OCEL list/mapping implementation
                             break;
                         default:
                             throw new ArgumentException($"Property type {property.Value.GetType()} on property {property.Key} not supported");
@@ -93,7 +96,7 @@ namespace Serilog.Sinks.OCEL
                 // Add exception as an object
                 if (@event.Exception != null)
                 {
-
+                    // TODO: Pending OCEL list/mapping implementation
                 }
 
                 var ocelEvent = new OcelEvent(

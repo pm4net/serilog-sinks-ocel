@@ -17,7 +17,7 @@ namespace Serilog.Sinks.OCEL.Tests
                 .Enrich.WithThreadId()
                 .Enrich.WithProcessId()
                 .MinimumLevel.Information()
-                .WriteTo.OcelLiteDbSink(LiteDbConnection, OcelSinkExtensions.DefaultBatchingOptions)
+                .WriteTo.OcelLiteDbSink(LiteDbConnection)
                 .CreateLogger();
         }
 
@@ -26,6 +26,7 @@ namespace Serilog.Sinks.OCEL.Tests
         {
             Log.Information("Test message: {msg}, {msg2}, {msg3}, {msg4}, {msg5} and test object {@s}", 
                 1337, 4.20, "test", false, DateTimeOffset.Now, new List<string> { "a", "b", "c" });
+            Log.Error(new AccessViolationException("test exception"), "test with error");
             Log.CloseAndFlush();
         }
     }

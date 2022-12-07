@@ -12,7 +12,7 @@ namespace Serilog.Sinks.OCEL
 {
     public static class OcelSinkExtensions
     {
-        private static readonly PeriodicBatchingSinkOptions DefaultBatchingOptions = new ()
+        public static readonly PeriodicBatchingSinkOptions DefaultBatchingOptions = new PeriodicBatchingSinkOptions
         {
             BatchSizeLimit = 50,
             EagerlyEmitFirstEvent = true,
@@ -23,10 +23,9 @@ namespace Serilog.Sinks.OCEL
         public static LoggerConfiguration OcelLiteDbSink(
             this LoggerSinkConfiguration configuration,
             string connectionString,
-            ITextFormatter textFormatter,
-            PeriodicBatchingSinkOptions? options = null)
+            PeriodicBatchingSinkOptions options)
         {
-            var ocelSink = new OcelLiteDbSink(connectionString, textFormatter);
+            var ocelSink = new OcelLiteDbSink(connectionString);
             var batchingSink = new PeriodicBatchingSink(ocelSink, options ?? DefaultBatchingOptions);
             return configuration.Sink(batchingSink);
         }
@@ -34,7 +33,7 @@ namespace Serilog.Sinks.OCEL
         public static LoggerConfiguration OcelXmlSink(
             this LoggerSinkConfiguration configuration,
             string filePath,
-            PeriodicBatchingSinkOptions? options = null)
+            PeriodicBatchingSinkOptions options)
         {
             var ocelSink = new OcelXmlSink(filePath);
             var batchingSink = new PeriodicBatchingSink(ocelSink, options ?? DefaultBatchingOptions);
@@ -44,7 +43,7 @@ namespace Serilog.Sinks.OCEL
         public static LoggerConfiguration OcelJsonSink(
             this LoggerSinkConfiguration configuration,
             string filePath,
-            PeriodicBatchingSinkOptions? options = null)
+            PeriodicBatchingSinkOptions options)
         {
             var ocelSink = new OcelJsonSink(filePath);
             var batchingSink = new PeriodicBatchingSink(ocelSink, options ?? DefaultBatchingOptions);

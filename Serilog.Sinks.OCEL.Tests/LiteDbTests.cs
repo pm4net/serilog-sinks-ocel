@@ -1,44 +1,32 @@
 using LiteDB;
 using Serilog.Core;
 using Serilog.Formatting.Json;
+using Serilog.Sinks.OCEL.Sinks;
 
 namespace Serilog.Sinks.OCEL.Tests
 {
-    public class LiteDbTests : IDisposable
+    public class LiteDbTests
     {
-        private static readonly string FilePath = "../../../unit-tests.db";
-        private static readonly string LiteDbConnection = $"Filename={FilePath};";
-        private static readonly string InMemoryConnection = "Filename=:memory:;";
-
-        private readonly Logger _logger;
-        private readonly LiteDatabase _db;
+        private const string FilePath = "unit-tests.db";
+        private const string LiteDbConnection = $"Filename={FilePath};";
+        private const string InMemoryConnection = "Filename=:memory:;";
 
         public LiteDbTests()
         {
-            _db = new LiteDatabase(LiteDbConnection);
-            _logger = new LoggerConfiguration()
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.WithThreadId()
+                .Enrich.WithProcessId()
                 .MinimumLevel.Information()
-                .WriteTo.OcelLiteDbSink(LiteDbConnection, new JsonFormatter())
+                .WriteTo.OcelLiteDbSink(LiteDbConnection, OcelSinkExtensions.DefaultBatchingOptions)
                 .CreateLogger();
-        }
-
-        public void Dispose()
-        {
-            _db.Dispose();
-            _logger.Dispose();
-
-            if (File.Exists(FilePath))
-            {
-                File.Delete(FilePath);
-            }
         }
 
         [Fact]
         public void CanWriteToDatabase()
         {
-            _logger.Information("Test Message to Check Write Capability");
-            Thread.Sleep(3_000); // Wait until all batches are written
-            Assert.Equal(1, _db.GetCollection("log").Count());
+            Log.Information("Test message: {msg}, {msg2}, {msg3}, {msg4}, {msg5} and test object {@s}", 
+                1337, 4.20, "test", false, DateTimeOffset.Now, new List<string> { "a", "b", "c" });
+            Log.CloseAndFlush();
         }
     }
 }

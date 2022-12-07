@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using OCEL.CSharp;
 using LiteDB;
 using Serilog.Events;
 using Serilog.Formatting;
@@ -9,28 +12,17 @@ namespace Serilog.Sinks.OCEL.Sinks
     public class OcelLiteDbSink : IBatchedLogEventSink
     {
         private readonly string _connectionString;
-        private readonly ITextFormatter _formatter;
 
-        public OcelLiteDbSink(
-            string connectionString,
-            ITextFormatter formatter)
+        public OcelLiteDbSink(string connectionString)
         {
             _connectionString = connectionString;
-            _formatter = formatter;
         }
 
         public async Task EmitBatchAsync(IEnumerable<LogEvent> batch)
         {
-            var items = batch.Select(e => AsDocument(e, _formatter));
-            using var db = new LiteDatabase(_connectionString);
-            ILiteCollection<BsonDocument> collection = db.GetCollection("log");
-            collection.Insert(items);
-
-            BsonDocument AsDocument(LogEvent @event, ITextFormatter formatter)
+            using (var db = new LiteDatabase(_connectionString))
             {
-                var sw = new StringWriter();
-                formatter.Format(@event, sw);
-                return JsonSerializer.Deserialize(new StringReader(sw.ToString())).AsDocument;
+                OcelLiteDB.Serialize(db, batch.MapFromEvents());
             }
         }
 

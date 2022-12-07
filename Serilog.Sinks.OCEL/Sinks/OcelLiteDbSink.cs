@@ -18,12 +18,13 @@ namespace Serilog.Sinks.OCEL.Sinks
             _connectionString = connectionString;
         }
 
-        public async Task EmitBatchAsync(IEnumerable<LogEvent> batch)
+        public Task EmitBatchAsync(IEnumerable<LogEvent> batch)
         {
             using (var db = new LiteDatabase(_connectionString))
             {
                 OcelLiteDB.Serialize(db, batch.MapFromEvents());
             }
+            return Task.CompletedTask;
         }
 
         public Task OnEmptyBatchAsync()

@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LiteDB;
 using OCEL.CSharp;
 using Serilog.Events;
 using Serilog.Parsing;
@@ -12,9 +14,9 @@ namespace Serilog.Sinks.OCEL
 {
     internal static class EventMapper
     {
-        private static OcelValue MapScalarValue(this ScalarValue scalarValue)
+        private static OcelValue ObjectToOcelValue(object obj)
         {
-            switch (scalarValue.Value)
+            switch (obj)
             {
                 // Integer types
                 case sbyte sby:
@@ -55,8 +57,31 @@ namespace Serilog.Sinks.OCEL
                 // Other types
                 case char ch:
                     return new OcelString(new string(ch, 1));
+                case IEnumerable<object> en:
+                    return new OcelList(en.Select(ObjectToOcelValue));
+                case IDictionary<string, object> dict:
+                    return new OcelMap(dict.ToDictionary(x => x.Key, x => ObjectToOcelValue(x.Value)));
                 default:
-                    return new OcelString(scalarValue.Value?.ToString() ?? string.Empty);
+                    return new OcelString(obj.ToString() ?? string.Empty);
+            }
+        }
+
+        private static OcelValue LogEventPropertyValueToOcelValue(LogEventPropertyValue value)
+        {
+            switch (value)
+            {
+                case ScalarValue scalarValue:
+                    return scalarValue.Value != null ? ObjectToOcelValue(scalarValue.Value) : null;
+                case StructureValue structureValue:
+                    return new OcelMap(structureValue.Properties.ToDictionary(x => x.Name, x => LogEventPropertyValueToOcelValue(x.Value)));
+                case SequenceValue sequenceValue:
+                    return new OcelList(sequenceValue.Elements.Select(LogEventPropertyValueToOcelValue));
+                case DictionaryValue dictionaryValue:
+                    return new OcelMap(dictionaryValue.Elements.ToDictionary(
+                        x => x.Key.Value as string ?? Guid.NewGuid().ToString(),
+                        x => LogEventPropertyValueToOcelValue(x.Value)));
+                default:
+                    throw new ArgumentException($"Property type {value.GetType()} not supported here.");
             }
         }
 
@@ -67,42 +92,82 @@ namespace Serilog.Sinks.OCEL
             foreach (var @event in events)
             {
                 var vMap = new Dictionary<string, OcelValue>();
-                var oMap = new Dictionary<string, OcelObject>();
+                var objectIds = new List<string>();
 
                 // Add log level as an attribute
                 vMap["Level"] = new OcelString(@event.Level.ToString());
 
+                // Add properties as attributes
                 foreach (var property in @event.Properties)
                 {
                     switch (property.Value)
                     {
-                        case ScalarValue scalarValue:
-                            vMap[property.Key] = scalarValue.MapScalarValue();
-                            break;
+                        // Treat structure values as objects if they have a type tag
                         case StructureValue structureValue:
-                            // TODO: Pending OCEL list/mapping implementation
-                            break;
-                        case SequenceValue sequenceValue:
-                            // TODO: Pending OCEL list/mapping implementation
-                            break;
-                        case DictionaryValue dictionaryValue:
-                            // TODO: Pending OCEL list/mapping implementation
+                            if (!string.IsNullOrWhiteSpace(structureValue.TypeTag))
+                            {
+                                var objectId = Guid.NewGuid().ToString();
+                                objectIds.Add(objectId);
+                                log.Objects.Add(objectId, new OcelObject(
+                                    structureValue.TypeTag,
+                                    structureValue.Properties.ToDictionary(x => x.Name, x => LogEventPropertyValueToOcelValue(x.Value))));
+                            }
+                            else
+                            {
+                                goto default;
+                            }
                             break;
                         default:
-                            throw new ArgumentException($"Property type {property.Value.GetType()} on property {property.Key} not supported");
+                            vMap[property.Key] = LogEventPropertyValueToOcelValue(property.Value);
+                            break;
                     }
                 }
 
                 // Add exception as an object
                 if (@event.Exception != null)
                 {
-                    // TODO: Pending OCEL list/mapping implementation
+                    var exObj = new OcelObject("Exception", new Dictionary<string, OcelValue>());
+                    exObj.OvMap["Message"] = new OcelString(@event.Exception.Message);
+                    exObj.OvMap["HResult"] = new OcelInteger(@event.Exception.HResult);
+
+                    if (@event.Exception.StackTrace != null)
+                    {
+                        exObj.OvMap["StackTrace"] = new OcelString(@event.Exception.StackTrace);
+                    }
+
+                    if (@event.Exception.Source != null)
+                    {
+                        exObj.OvMap["Source"] = new OcelString(@event.Exception.Source);
+                    }
+
+                    if (@event.Exception.HelpLink != null)
+                    {
+                        exObj.OvMap["HelpLink"] = new OcelString(@event.Exception.HelpLink);
+                    }
+
+                    if (@event.Exception.TargetSite != null)
+                    {
+                        exObj.OvMap["TargetSite"] = new OcelString(@event.Exception.TargetSite.ToString());
+                    }
+
+                    foreach (DictionaryEntry entry in @event.Exception.Data)
+                    {
+                        var key = entry.Key.ToString();
+                        if (!string.IsNullOrWhiteSpace(key) && entry.Value != null)
+                        {
+                            exObj.OvMap[key] = ObjectToOcelValue(entry.Value);
+                        }
+                    }
+
+                    var objectId = Guid.NewGuid().ToString();
+                    objectIds.Add(objectId);
+                    log.Objects[objectId] = exObj;
                 }
 
                 var ocelEvent = new OcelEvent(
                     activity: @event.MessageTemplate.Text, 
                     timestamp: @event.Timestamp, 
-                    oMap: oMap.Keys,
+                    oMap: objectIds,
                     vMap: vMap);
 
                 log.Events.Add(Guid.NewGuid().ToString(), ocelEvent);

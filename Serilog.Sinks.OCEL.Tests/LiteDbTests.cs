@@ -24,9 +24,19 @@ namespace Serilog.Sinks.OCEL.Tests
         [Fact]
         public void CanWriteToDatabase()
         {
-            Log.Information("Test message: {msg}, {msg2}, {msg3}, {msg4}, {msg5} and test object {@s}", 
-                1337, 4.20, "test", false, DateTimeOffset.Now, new List<string> { "a", "b", "c" });
-            Log.Error(new AccessViolationException("test exception"), "test with error");
+            Log.Information("Test message: {msg}, {msg2}, {msg3}, {msg4}, {msg5}, {msg6} and test object {@s}", 
+                1337, 4.20, "test", false, DateTimeOffset.Now, new List<string> { "a", "b", "c" }, 
+                new Dictionary<string, object>()
+                {
+                    { "a", 13 },
+                    { "b", "test" },
+                    { "c", new List<bool> { true, false, true }},
+                    { "d", new Dictionary<string, DateTime>
+                    {
+                        {"date now", DateTime.Now}
+                    }}
+                });
+            Log.Error(new ArgumentOutOfRangeException("some param", "test exception"), "test with error");
             Log.CloseAndFlush();
         }
     }

@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OCEL.CSharp" Version="1.1.0" />
+    <PackageReference Include="OCEL.CSharp" Version="1.2.0" />
     <PackageReference Include="Serilog" Version="2.12.0" />
     <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="3.1.0" />
   </ItemGroup>

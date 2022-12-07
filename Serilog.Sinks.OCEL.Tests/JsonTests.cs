@@ -3,18 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Xunit.Abstractions;
 
 namespace Serilog.Sinks.OCEL.Tests
 {
     public class JsonTests
     {
-        public JsonTests()
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public JsonTests(ITestOutputHelper testOutputHelper)
         {
+            _testOutputHelper = testOutputHelper;
+
             Log.Logger = new LoggerConfiguration()
                 .Enrich.WithThreadId()
                 .Enrich.WithProcessId()
                 .MinimumLevel.Information()
-                .WriteTo.OcelJsonSink("log.jsonocel")
+                .WriteTo.OcelJsonSink(new OcelJsonSinkOptions(@"log.jsonocel"))
                 .CreateLogger();
         }
 
@@ -30,10 +35,20 @@ namespace Serilog.Sinks.OCEL.Tests
                     { "c", new List<bool> { true, false, true }},
                     { "d", new Dictionary<string, DateTime>
                     {
-                        {"date now", DateTime.Now}
+                        {"datenow", DateTime.Now}
                     }}
                 });
             Log.Error(new ArgumentOutOfRangeException("some param", "test exception"), "test with error");
+            Log.CloseAndFlush();
+        }
+
+        [Fact]
+        public void CanWriteManyLogs()
+        {
+            for (int i = 0; i < 100_000; i++)
+            {
+                Log.Information("Testing {emoji}", ":)");
+            }
             Log.CloseAndFlush();
         }
     }

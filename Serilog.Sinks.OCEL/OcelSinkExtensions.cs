@@ -12,42 +12,61 @@ namespace Serilog.Sinks.OCEL
 {
     public static class OcelSinkExtensions
     {
-        private static readonly PeriodicBatchingSinkOptions DefaultBatchingOptions = new PeriodicBatchingSinkOptions
-        {
-            BatchSizeLimit = 50,
-            EagerlyEmitFirstEvent = true,
-            Period = TimeSpan.FromSeconds(2),
-            QueueLimit = 100_000
-        };
-
         public static LoggerConfiguration OcelLiteDbSink(
             this LoggerSinkConfiguration configuration,
-            string connectionString,
-            PeriodicBatchingSinkOptions options = null)
+            LiteDbSinkOptions options)
         {
-            var ocelSink = new OcelLiteDbSink(connectionString);
-            var batchingSink = new PeriodicBatchingSink(ocelSink, options ?? DefaultBatchingOptions);
+            var ocelSink = new OcelLiteDbSink(options.ConnectionString);
+            var batchingSink = new PeriodicBatchingSink(ocelSink, options);
             return configuration.Sink(batchingSink);
         }
 
         public static LoggerConfiguration OcelXmlSink(
             this LoggerSinkConfiguration configuration,
-            string filePath,
-            PeriodicBatchingSinkOptions options = null)
+            OcelXmlSinkOptions options)
         {
-            var ocelSink = new OcelXmlSink(filePath);
-            var batchingSink = new PeriodicBatchingSink(ocelSink, options ?? DefaultBatchingOptions);
+            var ocelSink = new OcelXmlSink(options.FilePath);
+            var batchingSink = new PeriodicBatchingSink(ocelSink, options);
             return configuration.Sink(batchingSink);
         }
 
         public static LoggerConfiguration OcelJsonSink(
             this LoggerSinkConfiguration configuration,
-            string filePath,
-            PeriodicBatchingSinkOptions options = null)
+            OcelJsonSinkOptions options)
         {
-            var ocelSink = new OcelJsonSink(filePath);
-            var batchingSink = new PeriodicBatchingSink(ocelSink, options ?? DefaultBatchingOptions);
+            var ocelSink = new OcelJsonSink(options.FilePath);
+            var batchingSink = new PeriodicBatchingSink(ocelSink, options);
             return configuration.Sink(batchingSink);
         }
+    }
+
+    public class LiteDbSinkOptions : PeriodicBatchingSinkOptions
+    {
+        public LiteDbSinkOptions(string connectionString)
+        {
+            ConnectionString = connectionString;
+        }
+
+        public string ConnectionString { get; set; }
+    }
+
+    public class OcelJsonSinkOptions : PeriodicBatchingSinkOptions
+    {
+        public OcelJsonSinkOptions(string filePath)
+        {
+            FilePath = filePath;
+        }
+
+        public string FilePath { get; set; }
+    }
+
+    public class OcelXmlSinkOptions : PeriodicBatchingSinkOptions
+    {
+        public OcelXmlSinkOptions(string filePath)
+        {
+            FilePath = filePath;
+        }
+
+        public string FilePath { get; set; }
     }
 }

@@ -2,22 +2,27 @@ using LiteDB;
 using Serilog.Core;
 using Serilog.Formatting.Json;
 using Serilog.Sinks.OCEL.Sinks;
+using Xunit.Abstractions;
 
 namespace Serilog.Sinks.OCEL.Tests
 {
     public class LiteDbTests
     {
-        private const string FilePath = "unit-tests.db";
+        private const string FilePath = @"unit-tests.db";
         private const string LiteDbConnection = $"Filename={FilePath};";
         private const string InMemoryConnection = "Filename=:memory:;";
 
-        public LiteDbTests()
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public LiteDbTests(ITestOutputHelper testOutputHelper)
         {
+            _testOutputHelper = testOutputHelper;
+
             Log.Logger = new LoggerConfiguration()
                 .Enrich.WithThreadId()
                 .Enrich.WithProcessId()
                 .MinimumLevel.Information()
-                .WriteTo.OcelLiteDbSink(LiteDbConnection)
+                .WriteTo.OcelLiteDbSink(new LiteDbSinkOptions(LiteDbConnection))
                 .CreateLogger();
         }
 
@@ -33,10 +38,20 @@ namespace Serilog.Sinks.OCEL.Tests
                     { "c", new List<bool> { true, false, true }},
                     { "d", new Dictionary<string, DateTime>
                     {
-                        {"date now", DateTime.Now}
+                        {"datenow", DateTime.Now}
                     }}
                 });
             Log.Error(new ArgumentOutOfRangeException("some param", "test exception"), "test with error");
+            Log.CloseAndFlush();
+        }
+
+        [Fact]
+        public void CanWriteManyLogs()
+        {
+            for (int i = 0; i < 100_000; i++)
+            {
+                Log.Information("Testing {emoji}", ":)");
+            }
             Log.CloseAndFlush();
         }
     }

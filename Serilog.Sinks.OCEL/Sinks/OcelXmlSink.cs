@@ -23,14 +23,14 @@ namespace Serilog.Sinks.OCEL.Sinks
         [SuppressMessage("ReSharper", "MethodHasAsyncOverload")] // Not available in .NET Standard 2.0
         public Task EmitBatchAsync(IEnumerable<LogEvent> batch)
         {
+            var newLog = batch.MapFromEvents();
             if (File.Exists(_filePath))
             {
                 var xml = File.ReadAllText(_filePath);
                 var log = OcelXml.Deserialize(xml);
+                newLog = log.MergeWith(newLog);
             }
 
-            var newLog = batch.MapFromEvents();
-            // TODO: Merge old and new log together with library function (to be implemented)
             File.WriteAllText(_filePath, OcelXml.Serialize(newLog, global::OCEL.Types.Formatting.Indented));
             return Task.CompletedTask;
         }

@@ -19,7 +19,7 @@ namespace Serilog.Sinks.OCEL.Tests
                 .Enrich.WithThreadId()
                 .Enrich.WithProcessId()
                 .MinimumLevel.Information()
-                .WriteTo.OcelXmlSink(new OcelXmlSinkOptions(@"log.xmlocel", global::OCEL.Types.Formatting.Indented))
+                .WriteTo.OcelXmlSink(new OcelXmlSinkOptions(string.Empty, "log.xmlocel", RollingPeriod.Never, global::OCEL.Types.Formatting.Indented))
                 .CreateLogger();
         }
 

@@ -11,16 +11,31 @@ namespace Serilog.Sinks.OCEL.Sinks
 {
     public class OcelLiteDbSink : IBatchedLogEventSink
     {
-        private readonly string _connectionString;
+        private readonly string _directory;
 
-        public OcelLiteDbSink(string connectionString)
+        private readonly string _fileName;
+
+        private readonly RollingPeriod _rollingPeriod;
+
+        private readonly string _password;
+
+        public OcelLiteDbSink(string directory, string fileName, RollingPeriod rollingPeriod, string password = null)
         {
-            _connectionString = connectionString;
+            _directory = directory;
+            _fileName = fileName;
+            _rollingPeriod = rollingPeriod;
+            _password = password;
         }
 
         public Task EmitBatchAsync(IEnumerable<LogEvent> batch)
         {
-            using (var db = new LiteDatabase(_connectionString))
+            var connString = $"Filename={Helpers.DetermineFilePath(_directory, _fileName, _rollingPeriod)}";
+            if (_password != null)
+            {
+                connString += $";Password={_password}";
+            }
+
+            using (var db = new LiteDatabase(connString))
             {
                 OcelLiteDB.Serialize(db, batch.MapFromEvents());
             }

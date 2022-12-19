@@ -8,8 +8,7 @@ namespace Serilog.Sinks.OCEL.Tests
 {
     public class LiteDbTests
     {
-        private const string FilePath = @"unit-tests.db";
-        private const string LiteDbConnection = $"Filename={FilePath};";
+        private const string FileName = "unit-tests.db";
         private const string InMemoryConnection = "Filename=:memory:;";
 
         private readonly ITestOutputHelper _testOutputHelper;
@@ -22,7 +21,7 @@ namespace Serilog.Sinks.OCEL.Tests
                 .Enrich.WithThreadId()
                 .Enrich.WithProcessId()
                 .MinimumLevel.Information()
-                .WriteTo.OcelLiteDbSink(new LiteDbSinkOptions(LiteDbConnection))
+                .WriteTo.OcelLiteDbSink(new LiteDbSinkOptions(string.Empty, FileName, RollingPeriod.Never))
                 .CreateLogger();
         }
 

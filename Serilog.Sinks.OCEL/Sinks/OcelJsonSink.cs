@@ -13,28 +13,35 @@ namespace Serilog.Sinks.OCEL.Sinks
 {
     public class OcelJsonSink : IBatchedLogEventSink
     {
-        private readonly string _filePath;
+        private readonly string _directory;
+
+        private readonly string _fileName;
+
+        private readonly RollingPeriod _rollingPeriod;
 
         private readonly global::OCEL.Types.Formatting _formatting;
 
-        public OcelJsonSink(string filePath, global::OCEL.Types.Formatting formatting)
+        public OcelJsonSink(string directory, string fileName, RollingPeriod rollingPeriod, global::OCEL.Types.Formatting formatting)
         {
-            _filePath = filePath;
+            _directory = directory;
+            _fileName = fileName;
+            _rollingPeriod = rollingPeriod;
             _formatting = formatting;
         }
         
         [SuppressMessage("ReSharper", "MethodHasAsyncOverload")] // Not available in .NET Standard 2.0
         public Task EmitBatchAsync(IEnumerable<LogEvent> batch)
         {
+            var file = Helpers.DetermineFilePath(_directory, _fileName, _rollingPeriod);
             var newLog = batch.MapFromEvents();
-            if (File.Exists(_filePath))
+            if (File.Exists(file))
             {
-                var json = File.ReadAllText(_filePath);
+                var json = File.ReadAllText(file);
                 var log = OcelJson.Deserialize(json);
                 newLog = log.MergeWith(newLog);
             }
             
-            File.WriteAllText(_filePath, OcelJson.Serialize(newLog, _formatting));
+            File.WriteAllText(file, OcelJson.Serialize(newLog, _formatting));
             return Task.CompletedTask;
         }
 

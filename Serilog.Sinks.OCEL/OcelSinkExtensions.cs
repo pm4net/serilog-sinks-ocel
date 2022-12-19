@@ -16,7 +16,7 @@ namespace Serilog.Sinks.OCEL
             this LoggerSinkConfiguration configuration,
             LiteDbSinkOptions options)
         {
-            var ocelSink = new OcelLiteDbSink(options.ConnectionString);
+            var ocelSink = new OcelLiteDbSink(options.Directory, options.FileName, options.RollingPeriod, options.Password);
             var batchingSink = new PeriodicBatchingSink(ocelSink, options);
             return configuration.Sink(batchingSink);
         }
@@ -25,7 +25,7 @@ namespace Serilog.Sinks.OCEL
             this LoggerSinkConfiguration configuration,
             OcelXmlSinkOptions options)
         {
-            var ocelSink = new OcelXmlSink(options.FilePath, options.Formatting);
+            var ocelSink = new OcelXmlSink(options.Directory, options.FileName, options.RollingPeriod, options.Formatting);
             var batchingSink = new PeriodicBatchingSink(ocelSink, options);
             return configuration.Sink(batchingSink);
         }
@@ -34,7 +34,7 @@ namespace Serilog.Sinks.OCEL
             this LoggerSinkConfiguration configuration,
             OcelJsonSinkOptions options)
         {
-            var ocelSink = new OcelJsonSink(options.FilePath, options.Formatting);
+            var ocelSink = new OcelJsonSink(options.Directory, options.FileName, options.RollingPeriod, options.Formatting);
             var batchingSink = new PeriodicBatchingSink(ocelSink, options);
             return configuration.Sink(batchingSink);
         }
@@ -42,37 +42,94 @@ namespace Serilog.Sinks.OCEL
 
     public class LiteDbSinkOptions : PeriodicBatchingSinkOptions
     {
-        public LiteDbSinkOptions(string connectionString)
+        public LiteDbSinkOptions(string directory, string fileName, RollingPeriod rollingPeriod, string password = null)
         {
-            ConnectionString = connectionString;
+            Directory = directory;
+            FileName = fileName;
+            RollingPeriod = rollingPeriod;
+            Password = password;
         }
 
-        public string ConnectionString { get; set; }
+        /// <summary>
+        /// The directory in which to store the log files.
+        /// </summary>
+        public string Directory { get; set; }
+
+        /// <summary>
+        /// The file name of a log file, which is prepended with the rolling period identifier.
+        /// </summary>
+        public string FileName { get; set; }
+
+        /// <summary>
+        /// The period after which a new log file is created.
+        /// </summary>
+        public RollingPeriod RollingPeriod { get; set; }
+
+        /// <summary>
+        /// An optional password for the log file (see <see href="https://www.litedb.org/docs/connection-string/">documentation</see>)
+        /// </summary>
+        public string Password { get; set; }
     }
 
     public class OcelJsonSinkOptions : PeriodicBatchingSinkOptions
     {
-        public OcelJsonSinkOptions(string filePath, global::OCEL.Types.Formatting formatting)
+        public OcelJsonSinkOptions(string directory, string fileName, RollingPeriod rollingPeriod, global::OCEL.Types.Formatting formatting)
         {
-            FilePath = filePath;
+            Directory = directory;
+            FileName = fileName;
+            RollingPeriod = rollingPeriod;
             Formatting = formatting;
         }
 
-        public string FilePath { get; set; }
+        /// <summary>
+        /// The directory in which to store the log files.
+        /// </summary>
+        public string Directory { get; set; }
 
+        /// <summary>
+        /// The file name of a log file, which is prepended with the rolling period identifier.
+        /// </summary>
+        public string FileName { get; set; }
+
+        /// <summary>
+        /// The period after which a new log file is created.
+        /// </summary>
+        public RollingPeriod RollingPeriod { get; set; }
+
+        /// <summary>
+        /// The formatting to use,
+        /// </summary>
         public global::OCEL.Types.Formatting Formatting { get; set; }
     }
 
     public class OcelXmlSinkOptions : PeriodicBatchingSinkOptions
     {
-        public OcelXmlSinkOptions(string filePath, global::OCEL.Types.Formatting formatting)
+        public OcelXmlSinkOptions(string directory, string fileName, RollingPeriod rollingPeriod, global::OCEL.Types.Formatting formatting)
         {
-            FilePath = filePath;
+            Directory = directory;
+            FileName = fileName;
+            RollingPeriod = rollingPeriod;
             Formatting = formatting;
         }
 
-        public string FilePath { get; set; }
+        /// <summary>
+        /// The directory in which to store the log files.
+        /// </summary>
+        public string Directory { get; set; }
 
+        /// <summary>
+        /// The file name of a log file, which is prepended with the rolling period identifier.
+        /// </summary>
+        public string FileName { get; set; }
+
+        /// <summary>
+        /// The period after which a new log file is created.
+        /// </summary>
+        public RollingPeriod RollingPeriod { get; set; }
+
+        /// <summary>
+        /// The formatting to use,
+        /// </summary>
         public global::OCEL.Types.Formatting Formatting { get; set; }
     }
 }

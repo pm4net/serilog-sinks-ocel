@@ -19,7 +19,7 @@ namespace Serilog.Sinks.OCEL.Tests
                 .Enrich.WithThreadId()
                 .Enrich.WithProcessId()
                 .MinimumLevel.Information()
-                .WriteTo.OcelJsonSink(new OcelJsonSinkOptions(@"log.jsonocel", global::OCEL.Types.Formatting.Indented))
+                .WriteTo.OcelJsonSink(new OcelJsonSinkOptions(string.Empty, "log.jsonocel", RollingPeriod.Never, global::OCEL.Types.Formatting.Indented))
                 .CreateLogger();
         }
 

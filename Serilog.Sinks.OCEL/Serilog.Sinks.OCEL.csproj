@@ -9,7 +9,7 @@
     <PackageTags>process-mining pm ocel serilog logging</PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <PackageReadmeFile>..\README.md</PackageReadmeFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageDescription>Serilog sinks that write events to Object-Centric Event Logs (OCEL)</PackageDescription>
     <PackageProjectUrl>https://github.com/pm4net/serilog-sinks-ocel</PackageProjectUrl>
     <RepositoryUrl>https://github.com/pm4net/serilog-sinks-ocel.git</RepositoryUrl>

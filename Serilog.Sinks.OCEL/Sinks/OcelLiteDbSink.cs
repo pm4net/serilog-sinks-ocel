@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using OCEL.CSharp;
 using LiteDB;
+using OCEL.CSharp;
 using Serilog.Events;
-using Serilog.Formatting;
 using Serilog.Sinks.PeriodicBatching;
 
 namespace Serilog.Sinks.OCEL.Sinks

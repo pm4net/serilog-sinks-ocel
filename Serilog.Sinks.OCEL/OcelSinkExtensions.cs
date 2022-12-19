@@ -25,7 +25,7 @@ namespace Serilog.Sinks.OCEL
             this LoggerSinkConfiguration configuration,
             OcelXmlSinkOptions options)
         {
-            var ocelSink = new OcelXmlSink(options.FilePath);
+            var ocelSink = new OcelXmlSink(options.FilePath, options.Formatting);
             var batchingSink = new PeriodicBatchingSink(ocelSink, options);
             return configuration.Sink(batchingSink);
         }
@@ -34,7 +34,7 @@ namespace Serilog.Sinks.OCEL
             this LoggerSinkConfiguration configuration,
             OcelJsonSinkOptions options)
         {
-            var ocelSink = new OcelJsonSink(options.FilePath);
+            var ocelSink = new OcelJsonSink(options.FilePath, options.Formatting);
             var batchingSink = new PeriodicBatchingSink(ocelSink, options);
             return configuration.Sink(batchingSink);
         }
@@ -52,21 +52,27 @@ namespace Serilog.Sinks.OCEL
 
     public class OcelJsonSinkOptions : PeriodicBatchingSinkOptions
     {
-        public OcelJsonSinkOptions(string filePath)
+        public OcelJsonSinkOptions(string filePath, global::OCEL.Types.Formatting formatting)
         {
             FilePath = filePath;
+            Formatting = formatting;
         }
 
         public string FilePath { get; set; }
+
+        public global::OCEL.Types.Formatting Formatting { get; set; }
     }
 
     public class OcelXmlSinkOptions : PeriodicBatchingSinkOptions
     {
-        public OcelXmlSinkOptions(string filePath)
+        public OcelXmlSinkOptions(string filePath, global::OCEL.Types.Formatting formatting)
         {
             FilePath = filePath;
+            Formatting = formatting;
         }
 
         public string FilePath { get; set; }
+
+        public global::OCEL.Types.Formatting Formatting { get; set; }
     }
 }

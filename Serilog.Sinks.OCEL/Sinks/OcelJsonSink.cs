@@ -15,9 +15,12 @@ namespace Serilog.Sinks.OCEL.Sinks
     {
         private readonly string _filePath;
 
-        public OcelJsonSink(string filePath)
+        private readonly global::OCEL.Types.Formatting _formatting;
+
+        public OcelJsonSink(string filePath, global::OCEL.Types.Formatting formatting)
         {
             _filePath = filePath;
+            _formatting = formatting;
         }
         
         [SuppressMessage("ReSharper", "MethodHasAsyncOverload")] // Not available in .NET Standard 2.0
@@ -31,7 +34,7 @@ namespace Serilog.Sinks.OCEL.Sinks
                 newLog = log.MergeWith(newLog);
             }
             
-            File.WriteAllText(_filePath, OcelJson.Serialize(newLog, global::OCEL.Types.Formatting.Indented));
+            File.WriteAllText(_filePath, OcelJson.Serialize(newLog, _formatting));
             return Task.CompletedTask;
         }
 

@@ -1,5 +1,10 @@
 # Serilog.Sinks.OCEL
 
+[![GitHub](https://img.shields.io/github/license/pm4net/serilog-sinks-ocel?style=flat-square)](https://github.com/pm4net/serilog-sinks-ocel/blob/master/LICENSE)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/pm4net/serilog-sinks-ocel/Build%20and%20Run%20Tests?label=tests&style=flat-square)](https://github.com/pm4net/serilog-sinks-ocel/actions/workflows/tests.yml)
+[![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Serilog.Sinks.OCEL?label=NuGet&style=flat-square)](https://www.nuget.org/packages/Serilog.Sinks.OCEL/)
+[![Nuget](https://img.shields.io/nuget/dt/Serilog.Sinks.OCEL?label=NuGet%20Downloads&style=flat-square)](https://www.nuget.org/packages/Serilog.Sinks.OCEL/#versions-body-tab)
+
 Serilog sinks that write events to Object-Centric Event Logs (OCEL) [1], using the [.NET OCEL library](https://github.com/pm4net/OCEL).
 
 There is a separate sinks for each of the supported OCEL format: `Serilog.Sinks.OCEL.Sinks.OcelJsonSink`, `Serilog.Sinks.OCEL.Sinks.OcelXmlSink`, and `Serilog.Sinks.OCEL.Sinks.OcelLiteDbSink`.

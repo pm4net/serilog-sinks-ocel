@@ -1,6 +1,6 @@
 # Serilog.Sinks.OCEL
 
-A Serilog sinks that writes events to Object-Centric Event Logs (OCEL) [1], using the [.NET OCEL library](https://github.com/pm4net/OCEL).
+Serilog sinks that write events to Object-Centric Event Logs (OCEL) [1], using the [.NET OCEL library](https://github.com/pm4net/OCEL).
 
 There is a separate sinks for each of the supported OCEL format: `Serilog.Sinks.OCEL.Sinks.OcelJsonSink`, `Serilog.Sinks.OCEL.Sinks.OcelXmlSink`, and `Serilog.Sinks.OCEL.Sinks.OcelLiteDbSink`.
 
@@ -11,7 +11,7 @@ Sample configuration:
 ```csharp
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
-    .WriteTo.OcelJsonSink(new OcelJsonSinkOptions(string.Empty, "log.jsonocel", RollingPeriod.Never, global::OCEL.Types.Formatting.Indented))
+    .WriteTo.OcelLiteDbSink(new LiteDbSinkOptions(string.Empty, "log.db", RollingPeriod.Never))
     .CreateLogger();
 ```
 
@@ -27,6 +27,10 @@ An additional useful format is to store OCEL data in document databases such as 
 | XML           | Implemented   |
 | LiteDB        | Implemented   |
 | MongoDB       | TBD           |
+
+# Performance
+
+JSON and XML files cannot simply be appended like a text file or a database table. They have to be parsed entirely before new events can be added, and then serialized again. This is very inefficient with long rolling periods and small batches. Therefore, it is **recommended to use the LiteDb sink for all logging**. The JSON and XML formats are included mostly for completeness. The [OCEL library](https://github.com/pm4net/OCEL) can be used to later convert between formats or even merge multiple files together.
 
 # References
 

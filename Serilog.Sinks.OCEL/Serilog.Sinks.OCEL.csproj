@@ -2,9 +2,17 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
-	<LangVersion>7.3</LangVersion>
-    <ImplicitUsings>disable</ImplicitUsings>
-    <Nullable>disable</Nullable>
+    <PackageId>Serilog.Sinks.OCEL</PackageId>
+    <Title>Serilog sinks that write events to Object-Centric Event Logs (OCEL)</Title>
+    <Authors>johannesmols</Authors>
+    <Copyright>Copyright (c) Johannes Mols 2022</Copyright>
+    <PackageTags>process-mining pm ocel serilog logging</PackageTags>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageReadmeFile>..\README.md</PackageReadmeFile>
+    <PackageDescription>Serilog sinks that write events to Object-Centric Event Logs (OCEL)</PackageDescription>
+    <PackageProjectUrl>https://github.com/pm4net/serilog-sinks-ocel</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/pm4net/serilog-sinks-ocel.git</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

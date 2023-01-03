@@ -25,8 +25,9 @@ namespace Serilog.Sinks.OCEL
                 var objectIds = new List<string>();
 
                 // Add log level as an attribute
-                vMap["Level"] = new OcelString(@event.Level.ToString());
-                vMap["Rendered"] = new OcelString(@event.RenderMessage());
+                vMap["pm4net.Level"] = new OcelString(@event.Level.ToString());
+                vMap["pm4net.RawMessage"] = new OcelString(@event.MessageTemplate.Text);
+                vMap["pm4net.RenderedMessage"] = new OcelString(@event.RenderMessage());
 
                 // Add properties as attributes
                 foreach (KeyValuePair<string, LogEventPropertyValue> property in @event.Properties)
@@ -83,7 +84,7 @@ namespace Serilog.Sinks.OCEL
         /// <returns>An OCEL object with the exception's details</returns>
         private static OcelObject MapException(Exception ex)
         {
-            var exObj = new OcelObject("Exception", new Dictionary<string, OcelValue>());
+            var exObj = new OcelObject("pm4net.Exception", new Dictionary<string, OcelValue>());
             exObj.OvMap["Message"] = new OcelString(ex.Message);
             exObj.OvMap["HResult"] = new OcelInteger(ex.HResult);
 

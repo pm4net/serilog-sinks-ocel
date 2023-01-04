@@ -38,7 +38,8 @@ namespace Serilog.Sinks.OCEL.Sinks
                 newLog = log.MergeWith(newLog);
             }
 
-            File.WriteAllText(file, OcelXml.Serialize(newLog, _formatting));
+            var serialized = OcelXml.Serialize(newLog, _formatting);
+            File.WriteAllText(file, serialized);
             return Task.CompletedTask;
         }
 

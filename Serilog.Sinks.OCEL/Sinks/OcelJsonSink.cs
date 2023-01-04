@@ -37,8 +37,9 @@ namespace Serilog.Sinks.OCEL.Sinks
                 var log = OcelJson.Deserialize(json);
                 newLog = log.MergeWith(newLog);
             }
-            
-            File.WriteAllText(file, OcelJson.Serialize(newLog, _formatting));
+
+            var serialized = OcelJson.Serialize(newLog, _formatting);
+            File.WriteAllText(file, serialized);
             return Task.CompletedTask;
         }
 

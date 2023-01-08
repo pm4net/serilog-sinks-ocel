@@ -26,7 +26,6 @@ namespace Serilog.Sinks.OCEL
 
                 // Add log level as an attribute
                 vMap["pm4net.Level"] = new OcelString(@event.Level.ToString());
-                vMap["pm4net.RawMessage"] = new OcelString(@event.MessageTemplate.Text);
                 vMap["pm4net.RenderedMessage"] = new OcelString(@event.RenderMessage());
 
                 // Add properties as attributes

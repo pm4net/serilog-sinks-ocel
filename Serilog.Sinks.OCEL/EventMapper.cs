@@ -24,11 +24,11 @@ namespace Serilog.Sinks.OCEL
                 var vMap = new Dictionary<string, OcelValue>();
                 var objectIds = new List<string>();
 
-                // Add log level as an attribute
+                // Add basic information as attributes
                 vMap["pm4net.Level"] = new OcelString(@event.Level.ToString());
                 vMap["pm4net.RenderedMessage"] = new OcelString(@event.RenderMessage());
 
-                // Add properties as attributes
+                // Add properties as objects
                 foreach (KeyValuePair<string, LogEventPropertyValue> property in @event.Properties)
                 {
                     var objectId = Guid.NewGuid().ToString();

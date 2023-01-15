@@ -1,5 +1,6 @@
 using LiteDB;
 using Serilog.Core;
+using Serilog.Enrichers.WithCaller;
 using Serilog.Formatting.Json;
 using Serilog.Sinks.OCEL.Sinks;
 using Xunit.Abstractions;
@@ -20,6 +21,7 @@ namespace Serilog.Sinks.OCEL.Tests
             Log.Logger = new LoggerConfiguration()
                 .Enrich.WithThreadId()
                 .Enrich.WithProcessId()
+                .Enrich.WithCaller(includeFileInfo: true, maxDepth: 1)
                 .MinimumLevel.Information()
                 .WriteTo.OcelLiteDbSink(new LiteDbSinkOptions(string.Empty, FileName, RollingPeriod.Never))
                 .CreateLogger();

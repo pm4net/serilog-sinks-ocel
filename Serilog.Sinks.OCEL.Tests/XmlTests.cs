@@ -18,6 +18,7 @@ namespace Serilog.Sinks.OCEL.Tests
             Log.Logger = new LoggerConfiguration()
                 .Enrich.WithThreadId()
                 .Enrich.WithProcessId()
+                .Enrich.WithDemystifiedStackTraces()
                 .MinimumLevel.Information()
                 .WriteTo.OcelXmlSink(new OcelXmlSinkOptions(string.Empty, "log.xmlocel", RollingPeriod.Never, global::OCEL.Types.Formatting.Indented))
                 .CreateLogger();

@@ -25,8 +25,7 @@ namespace Serilog.Sinks.OCEL.Sinks
             _rollingPeriod = rollingPeriod;
             _formatting = formatting;
         }
-
-        [SuppressMessage("ReSharper", "MethodHasAsyncOverload")] // Not available in .NET Standard 2.0
+        
         public Task EmitBatchAsync(IEnumerable<LogEvent> batch)
         {
             var file = Helpers.DetermineFilePath(_directory, _fileName, _rollingPeriod);
@@ -35,7 +34,7 @@ namespace Serilog.Sinks.OCEL.Sinks
             {
                 var xml = File.ReadAllText(file);
                 var log = OcelXml.Deserialize(xml);
-                newLog = log.MergeWith(newLog);
+                newLog = log.MergeWith(newLog).MergeDuplicateObjects();
             }
 
             var serialized = OcelXml.Serialize(newLog, _formatting);

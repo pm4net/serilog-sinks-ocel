@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Serilog.Enrichers.CallerInfo;
 using Xunit.Abstractions;
 
 namespace Serilog.Sinks.OCEL.Tests
@@ -18,13 +14,14 @@ namespace Serilog.Sinks.OCEL.Tests
             Log.Logger = new LoggerConfiguration()
                 .Enrich.WithThreadId()
                 .Enrich.WithProcessId()
+                .Enrich.WithCallerInfo(includeFileInfo: true, allowedAssemblies: new List<string> { "Serilog.Sinks.OCEL.Tests" }, "pm4net_")
                 .MinimumLevel.Information()
                 .WriteTo.OcelXmlSink(new OcelXmlSinkOptions(string.Empty, "log.xmlocel", RollingPeriod.Never, global::OCEL.Types.Formatting.Indented))
                 .CreateLogger();
         }
 
         [Fact]
-        public void CanWriteToJsonFile()
+        public void CanWriteToXmlFile()
         {
             Log.Information("Test message: {msg}, {msg2}, {msg3}, {msg4}, {msg5}, {msg6} and test object {@s}",
                 1337, 4.20, "test", false, DateTimeOffset.Now, new List<string> { "a", "b", "c" },

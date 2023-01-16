@@ -15,6 +15,8 @@ namespace Serilog.Sinks.OCEL
 {
     internal static class EventMapper
     {
+        private const string Prefix = "pm4net";
+
         internal static OcelLog MapFromEvents(this IEnumerable<LogEvent> events)
         {
             var log = new OcelLog(new Dictionary<string, OcelValue>(), new Dictionary<string, OcelEvent>(), new Dictionary<string, OcelObject>());
@@ -24,12 +26,21 @@ namespace Serilog.Sinks.OCEL
                 var vMap = new Dictionary<string, OcelValue>();
                 var objectIds = new List<string>();
 
-                // Add log level as an attribute
-                vMap["pm4net.Level"] = new OcelString(@event.Level.ToString());
-                vMap["pm4net.RenderedMessage"] = new OcelString(@event.RenderMessage());
+                // Add basic information as attributes
+                vMap[$"{Prefix}_Level"] = new OcelString(@event.Level.ToString());
+                vMap[$"{Prefix}_RenderedMessage"] = new OcelString(@event.RenderMessage());
 
-                // Add properties as attributes
-                foreach (KeyValuePair<string, LogEventPropertyValue> property in @event.Properties)
+                // Partition the properties by whether they start with the reserved prefix
+                var lookup = @event.Properties.ToLookup(x => x.Key.StartsWith(Prefix, StringComparison.OrdinalIgnoreCase));
+
+                // Add properties that start with the reserved prefix as attributes
+                foreach (var property in lookup[true])
+                {
+                    vMap[property.Key] = MapLogEventPropertyValue(property.Value);
+                }
+
+                // Add remaining properties as objects
+                foreach (var property in lookup[false])
                 {
                     var objectId = Guid.NewGuid().ToString();
                     objectIds.Add(objectId);
@@ -83,7 +94,7 @@ namespace Serilog.Sinks.OCEL
         /// <returns>An OCEL object with the exception's details</returns>
         private static OcelObject MapException(Exception ex)
         {
-            var exObj = new OcelObject("pm4net.Exception", new Dictionary<string, OcelValue>());
+            var exObj = new OcelObject($"{Prefix}_Exception", new Dictionary<string, OcelValue>());
             exObj.OvMap["Message"] = new OcelString(ex.Message);
             exObj.OvMap["HResult"] = new OcelInteger(ex.HResult);
 

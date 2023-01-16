@@ -1,8 +1,4 @@
-using LiteDB;
-using Serilog.Core;
-using Serilog.Enrichers.WithCaller;
-using Serilog.Formatting.Json;
-using Serilog.Sinks.OCEL.Sinks;
+using Serilog.Enrichers.CallerInfo;
 using Xunit.Abstractions;
 
 namespace Serilog.Sinks.OCEL.Tests
@@ -21,8 +17,7 @@ namespace Serilog.Sinks.OCEL.Tests
             Log.Logger = new LoggerConfiguration()
                 .Enrich.WithThreadId()
                 .Enrich.WithProcessId()
-                .Enrich.WithDemystifiedStackTraces()
-                .Enrich.WithCaller(includeFileInfo: false, maxDepth: 1)
+                .Enrich.WithCallerInfo(includeFileInfo: true, allowedAssemblies: new List<string> { "Serilog.Sinks.OCEL.Tests" }, "pm4net_")
                 .MinimumLevel.Information()
                 .WriteTo.OcelLiteDbSink(new LiteDbSinkOptions(string.Empty, FileName, RollingPeriod.Never))
                 .CreateLogger();

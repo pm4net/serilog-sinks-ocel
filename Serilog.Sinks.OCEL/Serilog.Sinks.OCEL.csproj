@@ -13,6 +13,8 @@
     <PackageDescription>Serilog sinks that write events to Object-Centric Event Logs (OCEL)</PackageDescription>
     <PackageProjectUrl>https://github.com/pm4net/serilog-sinks-ocel</PackageProjectUrl>
     <RepositoryUrl>https://github.com/pm4net/serilog-sinks-ocel.git</RepositoryUrl>
+	<IncludeSymbols>true</IncludeSymbols>
+	<SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 	
   <ItemGroup>

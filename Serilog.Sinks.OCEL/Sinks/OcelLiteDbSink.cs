@@ -17,25 +17,32 @@ namespace Serilog.Sinks.OCEL.Sinks
 
         private readonly string _password;
 
-        public OcelLiteDbSink(string directory, string fileName, RollingPeriod rollingPeriod, string password = null)
+        private readonly string _prefix = "pm4net_";
+
+        public OcelLiteDbSink(string directory, string fileName, RollingPeriod rollingPeriod, string password = null, string prefix = null)
         {
             _directory = directory;
             _fileName = fileName;
             _rollingPeriod = rollingPeriod;
             _password = password;
+
+            if (prefix != null)
+            {
+                _prefix = prefix;
+            }
         }
 
         public Task EmitBatchAsync(IEnumerable<LogEvent> batch)
         {
             var connString = $"Filename={Helpers.DetermineFilePath(_directory, _fileName, _rollingPeriod)}";
-            if (_password != null)
+            if (!string.IsNullOrWhiteSpace(_password))
             {
                 connString += $";Password={_password}";
             }
 
             using (var db = new LiteDatabase(connString))
             {
-                OcelLiteDB.Serialize(db, batch.MapFromEvents());
+                OcelLiteDB.Serialize(db, batch.MapFromEvents(_prefix));
                 db.Dispose(); // https://github.com/mbdavid/LiteDB/issues/1462
             }
             return Task.CompletedTask;

@@ -1,23 +1,15 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LiteDB;
-using Microsoft.FSharp.Control;
 using OCEL.CSharp;
 using Serilog.Events;
-using Serilog.Parsing;
 
 namespace Serilog.Sinks.OCEL
 {
     internal static class EventMapper
     {
-        private const string Prefix = "pm4net";
-
-        internal static OcelLog MapFromEvents(this IEnumerable<LogEvent> events)
+        internal static OcelLog MapFromEvents(this IEnumerable<LogEvent> events, string prefix)
         {
             var log = new OcelLog(new Dictionary<string, OcelValue>(), new Dictionary<string, OcelEvent>(), new Dictionary<string, OcelObject>());
 
@@ -27,11 +19,17 @@ namespace Serilog.Sinks.OCEL
                 var objectIds = new List<string>();
 
                 // Add basic information as attributes
-                vMap[$"{Prefix}_Level"] = new OcelString(@event.Level.ToString());
-                vMap[$"{Prefix}_RenderedMessage"] = new OcelString(@event.RenderMessage());
+                vMap[$"{prefix}Level"] = new OcelString(@event.Level.ToString());
+                vMap[$"{prefix}RenderedMessage"] = new OcelString(@event.RenderMessage());
+
+                // Add exception as an attribute
+                if (@event.Exception != null)
+                {
+                    vMap[$"{prefix}Exception"] = MapException(@event.Exception);
+                }
 
                 // Partition the properties by whether they start with the reserved prefix
-                var lookup = @event.Properties.ToLookup(x => x.Key.StartsWith(Prefix, StringComparison.OrdinalIgnoreCase));
+                var lookup = @event.Properties.ToLookup(x => x.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
 
                 // Add properties that start with the reserved prefix as attributes
                 foreach (var property in lookup[true])
@@ -65,16 +63,7 @@ namespace Serilog.Sinks.OCEL
                             break;
                     }
                 }
-
-                // Add exception as an object
-                if (@event.Exception != null)
-                {
-                    var exObj = MapException(@event.Exception);
-                    var objectId = Guid.NewGuid().ToString();
-                    objectIds.Add(objectId);
-                    log.Objects[objectId] = exObj;
-                }
-
+                
                 var ocelEvent = new OcelEvent(
                     activity: @event.MessageTemplate.Text, 
                     timestamp: @event.Timestamp, 
@@ -88,34 +77,37 @@ namespace Serilog.Sinks.OCEL
         }
 
         /// <summary>
-        /// Map an Exception to an OCEL object with its details as attributes.
+        /// Map an Exception to an OCEL map value with its details as children.
         /// </summary>
         /// <param name="ex">The exception to map</param>
-        /// <returns>An OCEL object with the exception's details</returns>
-        private static OcelObject MapException(Exception ex)
+        /// <returns>An OCEL map with the exception's details</returns>
+        private static OcelValue MapException(Exception ex)
         {
-            var exObj = new OcelObject($"{Prefix}_Exception", new Dictionary<string, OcelValue>());
-            exObj.OvMap["Message"] = new OcelString(ex.Message);
-            exObj.OvMap["HResult"] = new OcelInteger(ex.HResult);
+            var values = new Dictionary<string, OcelValue>
+            {
+                ["Type"] = new OcelString(ex.GetType().FullName),
+                ["Message"] = new OcelString(ex.Message),
+                ["HResult"] = new OcelInteger(ex.HResult)
+            };
 
             if (ex.StackTrace != null)
             {
-                exObj.OvMap["StackTrace"] = new OcelString(ex.StackTrace);
+                values["StackTrace"] = new OcelString(ex.StackTrace);
             }
 
             if (ex.Source != null)
             {
-                exObj.OvMap["Source"] = new OcelString(ex.Source);
+                values["Source"] = new OcelString(ex.Source);
             }
 
             if (ex.HelpLink != null)
             {
-                exObj.OvMap["HelpLink"] = new OcelString(ex.HelpLink);
+                values["HelpLink"] = new OcelString(ex.HelpLink);
             }
 
             if (ex.TargetSite != null)
             {
-                exObj.OvMap["TargetSite"] = new OcelString(ex.TargetSite.ToString());
+                values["TargetSite"] = new OcelString(ex.TargetSite.ToString());
             }
 
             foreach (DictionaryEntry entry in ex.Data)
@@ -123,11 +115,11 @@ namespace Serilog.Sinks.OCEL
                 var key = entry.Key.ToString();
                 if (!string.IsNullOrWhiteSpace(key) && entry.Value != null)
                 {
-                    exObj.OvMap[key] = MapObject(entry.Value);
+                    values[key] = MapObject(entry.Value);
                 }
             }
 
-            return exObj;
+            return new OcelMap(values);
         }
 
         /// <summary>

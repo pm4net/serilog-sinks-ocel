@@ -5,7 +5,7 @@ namespace Serilog.Sinks.OCEL.Tests
 {
     public class LiteDbTests
     {
-        private const string FileName = "unit-tests.db";
+        private const string FileName = "log.db";
         private const string InMemoryConnection = "Filename=:memory:;";
 
         private readonly ITestOutputHelper _testOutputHelper;

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading.Tasks;
 using OCEL.CSharp;
@@ -18,32 +17,52 @@ namespace Serilog.Sinks.OCEL.Sinks
 
         private readonly global::OCEL.Types.Formatting _formatting;
 
-        public OcelXmlSink(string directory, string fileName, RollingPeriod rollingPeriod, global::OCEL.Types.Formatting formatting)
+        private readonly string _prefix = "pm4net_";
+
+        public OcelXmlSink(string directory, string fileName, RollingPeriod rollingPeriod, global::OCEL.Types.Formatting formatting, string prefix = null)
         {
             _directory = directory;
             _fileName = fileName;
             _rollingPeriod = rollingPeriod;
             _formatting = formatting;
+
+            if (prefix != null)
+            {
+                _prefix = prefix;
+            }
         }
+
+        /// <summary>
+        /// In-memory copy of serialized log to avoid re-reading from file all the time.
+        /// </summary>
+        private OcelLog _inMemoryLog;
         
         public Task EmitBatchAsync(IEnumerable<LogEvent> batch)
         {
             var file = Helpers.DetermineFilePath(_directory, _fileName, _rollingPeriod);
-            var newLog = batch.MapFromEvents();
-            if (File.Exists(file))
+            var newLog = batch.MapFromEvents(_prefix);
+
+            if (_inMemoryLog == null && File.Exists(file))
             {
                 var xml = File.ReadAllText(file);
                 var log = OcelXml.Deserialize(xml);
-                newLog = log.MergeWith(newLog).MergeDuplicateObjects();
+                newLog = log.MergeWith(newLog);
+            }
+            else
+            {
+                newLog = _inMemoryLog != null ? _inMemoryLog.MergeWith(newLog) : newLog;
             }
 
-            var serialized = OcelXml.Serialize(newLog, _formatting);
+            _inMemoryLog = newLog;
+            _inMemoryLog = newLog.MergeDuplicateObjects();
+            var serialized = OcelXml.Serialize(_inMemoryLog, _formatting);
             File.WriteAllText(file, serialized);
             return Task.CompletedTask;
         }
-
+        
         public Task OnEmptyBatchAsync()
         {
+            _inMemoryLog = null;
             return Task.CompletedTask;
         }
     }

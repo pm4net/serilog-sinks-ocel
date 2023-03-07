@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Serilog.Configuration;
-using Serilog.Formatting;
+﻿using Serilog.Configuration;
 using Serilog.Sinks.OCEL.Sinks;
 using Serilog.Sinks.PeriodicBatching;
 
@@ -16,7 +10,7 @@ namespace Serilog.Sinks.OCEL
             this LoggerSinkConfiguration configuration,
             LiteDbSinkOptions options)
         {
-            var ocelSink = new OcelLiteDbSink(options.Directory, options.FileName, options.RollingPeriod, options.Password);
+            var ocelSink = new OcelLiteDbSink(options.Directory, options.FileName, options.RollingPeriod, options.Password, options.Prefix);
             var batchingSink = new PeriodicBatchingSink(ocelSink, options);
             return configuration.Sink(batchingSink);
         }
@@ -25,7 +19,7 @@ namespace Serilog.Sinks.OCEL
             this LoggerSinkConfiguration configuration,
             OcelXmlSinkOptions options)
         {
-            var ocelSink = new OcelXmlSink(options.Directory, options.FileName, options.RollingPeriod, options.Formatting);
+            var ocelSink = new OcelXmlSink(options.Directory, options.FileName, options.RollingPeriod, options.Formatting, options.Prefix);
             var batchingSink = new PeriodicBatchingSink(ocelSink, options);
             return configuration.Sink(batchingSink);
         }
@@ -34,7 +28,7 @@ namespace Serilog.Sinks.OCEL
             this LoggerSinkConfiguration configuration,
             OcelJsonSinkOptions options)
         {
-            var ocelSink = new OcelJsonSink(options.Directory, options.FileName, options.RollingPeriod, options.Formatting);
+            var ocelSink = new OcelJsonSink(options.Directory, options.FileName, options.RollingPeriod, options.Formatting, options.Prefix);
             var batchingSink = new PeriodicBatchingSink(ocelSink, options);
             return configuration.Sink(batchingSink);
         }
@@ -69,6 +63,11 @@ namespace Serilog.Sinks.OCEL
         /// An optional password for the log file (see <see href="https://www.litedb.org/docs/connection-string/">documentation</see>)
         /// </summary>
         public string Password { get; set; }
+
+        /// <summary>
+        /// An optional prefix to add to reserved attributes such as log level, rendered message and exception.
+        /// </summary>
+        public string Prefix { get; set; } = null;
     }
 
     public class OcelJsonSinkOptions : PeriodicBatchingSinkOptions
@@ -100,6 +99,11 @@ namespace Serilog.Sinks.OCEL
         /// The formatting to use,
         /// </summary>
         public global::OCEL.Types.Formatting Formatting { get; set; }
+
+        /// <summary>
+        /// An optional prefix to add to reserved attributes such as log level, rendered message and exception.
+        /// </summary>
+        public string Prefix { get; set; } = null;
     }
 
     public class OcelXmlSinkOptions : PeriodicBatchingSinkOptions
@@ -131,5 +135,10 @@ namespace Serilog.Sinks.OCEL
         /// The formatting to use,
         /// </summary>
         public global::OCEL.Types.Formatting Formatting { get; set; }
+
+        /// <summary>
+        /// An optional prefix to add to reserved attributes such as log level, rendered message and exception.
+        /// </summary>
+        public string Prefix { get; set; } = null;
     }
 }

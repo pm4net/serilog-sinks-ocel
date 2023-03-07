@@ -45,7 +45,7 @@ namespace Serilog.Sinks.OCEL.Sinks
             if (_inMemoryLog == null && File.Exists(file))
             {
                 var json = File.ReadAllText(file);
-                var log = OcelJson.Deserialize(json);
+                var log = OcelJson.Deserialize(json, false);
                 newLog = log.MergeWith(newLog);
             }
             else

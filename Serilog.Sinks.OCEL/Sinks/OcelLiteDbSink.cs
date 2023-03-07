@@ -42,7 +42,7 @@ namespace Serilog.Sinks.OCEL.Sinks
 
             using (var db = new LiteDatabase(connString))
             {
-                OcelLiteDB.Serialize(db, batch.MapFromEvents(_prefix));
+                OcelLiteDB.Serialize(db, batch.MapFromEvents(_prefix), false);
                 db.Dispose(); // https://github.com/mbdavid/LiteDB/issues/1462
             }
             return Task.CompletedTask;

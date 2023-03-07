@@ -31,26 +31,38 @@ namespace Serilog.Sinks.OCEL.Sinks
                 _prefix = prefix;
             }
         }
-        
+
+        /// <summary>
+        /// In-memory copy of serialized log to avoid re-reading from file all the time.
+        /// </summary>
+        private OcelLog _inMemoryLog;
+
         public Task EmitBatchAsync(IEnumerable<LogEvent> batch)
         {
             var file = Helpers.DetermineFilePath(_directory, _fileName, _rollingPeriod);
             var newLog = batch.MapFromEvents(_prefix);
-            if (File.Exists(file))
+
+            if (_inMemoryLog == null && File.Exists(file))
             {
                 var json = File.ReadAllText(file);
                 var log = OcelJson.Deserialize(json);
-                newLog = log.MergeWith(newLog).MergeDuplicateObjects();
+                newLog = log.MergeWith(newLog);
+            }
+            else
+            {
+                newLog = _inMemoryLog != null ? _inMemoryLog.MergeWith(newLog) : newLog;
             }
 
-            var serialized = OcelJson.Serialize(newLog, _formatting);
+            _inMemoryLog = newLog;
+            _inMemoryLog = newLog.MergeDuplicateObjects();
+            var serialized = OcelJson.Serialize(_inMemoryLog, _formatting);
             File.WriteAllText(file, serialized);
             return Task.CompletedTask;
         }
-
-        // TODO: Keep log in memory so that it doesn't have to be read each time, and only dispose of it here. Then re-read it for the next time.
+        
         public Task OnEmptyBatchAsync()
         {
+            _inMemoryLog = null;
             return Task.CompletedTask;
         }
     }

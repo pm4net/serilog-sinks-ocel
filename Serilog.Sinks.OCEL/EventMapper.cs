@@ -28,14 +28,8 @@ namespace Serilog.Sinks.OCEL
                     vMap[$"{prefix}Exception"] = MapException(@event.Exception);
                 }
 
-                // Check whether SourceContext is available, and add it as an attribute if it is
-                if (@event.Properties.ContainsKey("SourceContext"))
-                {
-                    vMap[$"{prefix}Namespace"] = MapLogEventPropertyValue(@event.Properties["SourceContext"]);
-                }
-
                 // Partition the properties by whether they start with the reserved prefix
-                var lookup = @event.Properties.ToLookup(x => x.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+                var lookup = @event.Properties.ToLookup(x => x.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) || x.Key == "SourceContext");
 
                 // Add properties that start with the reserved prefix as attributes
                 foreach (var property in lookup[true])

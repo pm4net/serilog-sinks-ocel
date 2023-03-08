@@ -26,7 +26,7 @@ namespace Serilog.Sinks.OCEL.Tests
         [Fact]
         public void CanWriteToDatabase()
         {
-            Log.Information("Test message: {msg}, {msg2}, {msg3}, {msg4}, {msg5}, {msg6} and test object {@s}, and a {pm4net_Reserved}", 
+            Log.ForContext<LiteDbTests>().Information("Test message: {msg}, {msg2}, {msg3}, {msg4}, {msg5}, {msg6} and test object {@s}, and a {pm4net_Reserved}", 
                 1337, 4.20, "test", false, DateTimeOffset.Now, new List<string> { "a", "b", "c" }, 
                 new Dictionary<string, object>()
                 {
@@ -38,7 +38,7 @@ namespace Serilog.Sinks.OCEL.Tests
                         {"datenow", DateTime.Now}
                     }}
                 }, 1337);
-            Log.Error(new ArgumentOutOfRangeException("some param", "test exception"), "test with error");
+            Log.ForContext<LiteDbTests>().Error(new ArgumentOutOfRangeException("some param", "test exception"), "test with error");
             Log.CloseAndFlush();
         }
 

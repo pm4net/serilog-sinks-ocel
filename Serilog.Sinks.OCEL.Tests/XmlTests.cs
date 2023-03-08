@@ -23,7 +23,7 @@ namespace Serilog.Sinks.OCEL.Tests
         [Fact]
         public void CanWriteToXmlFile()
         {
-            Log.Information("Test message: {msg}, {msg2}, {msg3}, {msg4}, {msg5}, {msg6} and test object {@s}",
+            Log.ForContext<XmlTests>().Information("Test message: {msg}, {msg2}, {msg3}, {msg4}, {msg5}, {msg6} and test object {@s}",
                 1337, 4.20, "test", false, DateTimeOffset.Now, new List<string> { "a", "b", "c" },
                 new Dictionary<string, object>()
                 {
@@ -35,7 +35,7 @@ namespace Serilog.Sinks.OCEL.Tests
                         {"datenow", DateTime.Now}
                     }}
                 });
-            Log.Error(new ArgumentOutOfRangeException("some param", "test exception"), "test with error");
+            Log.ForContext<XmlTests>().Error(new ArgumentOutOfRangeException("some param", "test exception"), "test with error");
             Log.CloseAndFlush();
         }
 

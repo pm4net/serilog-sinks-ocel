@@ -11,7 +11,20 @@ namespace Serilog.Sinks.OCEL
     {
         internal static OcelLog MapFromEvents(this IEnumerable<LogEvent> events, string prefix)
         {
-            var log = new OcelLog(new Dictionary<string, OcelValue>(), new Dictionary<string, OcelEvent>(), new Dictionary<string, OcelObject>());
+            // Add the used prefix as a global attribute
+            var globalAttributes = new Dictionary<string, OcelValue>();
+            if (!string.IsNullOrWhiteSpace(prefix))
+            {
+                globalAttributes.Add("Serilog.Sinks.OCEL_Prefix", new OcelString(prefix));   
+            }
+
+            var enricherPrefixExists = events.FirstOrDefault().Properties.TryGetValue("Serilog.Enrichers.CallerInfo_Prefix", out var enricherPrefix);
+            if (enricherPrefixExists && enricherPrefix is ScalarValue scalar)
+            {
+                globalAttributes.Add("Serilog.Enrichers.CallerInfo_Prefix", MapObject(scalar.Value));
+            }
+
+            var log = new OcelLog(globalAttributes, new Dictionary<string, OcelEvent>(), new Dictionary<string, OcelObject>());
 
             foreach (var @event in events)
             {

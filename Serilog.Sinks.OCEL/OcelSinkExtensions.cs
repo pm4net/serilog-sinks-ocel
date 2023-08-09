@@ -6,42 +6,55 @@ namespace Serilog.Sinks.OCEL
 {
     public static class OcelSinkExtensions
     {
-        public static LoggerConfiguration OcelLiteDbSink(
-            this LoggerSinkConfiguration configuration,
-            LiteDbSinkOptions options)
+        public static LoggerConfiguration OcelLiteDbSink(this LoggerSinkConfiguration configuration, LiteDbSinkOptions options)
         {
             var ocelSink = new OcelLiteDbSink(options.Directory, options.FileName, options.RollingPeriod, options.Password, options.Prefix);
             var batchingSink = new PeriodicBatchingSink(ocelSink, options);
             return configuration.Sink(batchingSink);
         }
 
-        public static LoggerConfiguration OcelXmlSink(
-            this LoggerSinkConfiguration configuration,
-            OcelXmlSinkOptions options)
+        public static LoggerConfiguration OcelLiteDbSink(this LoggerSinkConfiguration configuration,
+            string directory, string fileName, RollingPeriod rollingPeriod, string password = null, string prefix = null)
+        {
+            return configuration.OcelLiteDbSink(new LiteDbSinkOptions(directory, fileName, rollingPeriod, password, prefix));
+        }
+
+        public static LoggerConfiguration OcelXmlSink(this LoggerSinkConfiguration configuration, OcelXmlSinkOptions options)
         {
             var ocelSink = new OcelXmlSink(options.Directory, options.FileName, options.RollingPeriod, options.Formatting, options.Prefix);
             var batchingSink = new PeriodicBatchingSink(ocelSink, options);
             return configuration.Sink(batchingSink);
         }
 
-        public static LoggerConfiguration OcelJsonSink(
-            this LoggerSinkConfiguration configuration,
-            OcelJsonSinkOptions options)
+        public static LoggerConfiguration OcelXmlSink(this LoggerSinkConfiguration configuration,
+            string directory, string fileName, RollingPeriod rollingPeriod, global::OCEL.Types.Formatting formatting, string prefix = null)
+        {
+            return configuration.OcelXmlSink(new OcelXmlSinkOptions(directory, fileName, rollingPeriod, formatting, prefix));
+        }
+
+        public static LoggerConfiguration OcelJsonSink(this LoggerSinkConfiguration configuration, OcelJsonSinkOptions options)
         {
             var ocelSink = new OcelJsonSink(options.Directory, options.FileName, options.RollingPeriod, options.Formatting, options.Prefix);
             var batchingSink = new PeriodicBatchingSink(ocelSink, options);
             return configuration.Sink(batchingSink);
         }
+
+        public static LoggerConfiguration OcelJsonSink(this LoggerSinkConfiguration configuration, 
+            string directory, string fileName, RollingPeriod rollingPeriod, global::OCEL.Types.Formatting formatting, string prefix = null)
+        {
+            return configuration.OcelJsonSink(new OcelJsonSinkOptions(directory, fileName, rollingPeriod, formatting, prefix));
+        }
     }
 
     public class LiteDbSinkOptions : PeriodicBatchingSinkOptions
     {
-        public LiteDbSinkOptions(string directory, string fileName, RollingPeriod rollingPeriod, string password = null)
+        public LiteDbSinkOptions(string directory, string fileName, RollingPeriod rollingPeriod, string password = null, string prefix = null)
         {
             Directory = directory;
             FileName = fileName;
             RollingPeriod = rollingPeriod;
             Password = password;
+            Prefix = prefix;
         }
 
         /// <summary>
@@ -72,12 +85,13 @@ namespace Serilog.Sinks.OCEL
 
     public class OcelJsonSinkOptions : PeriodicBatchingSinkOptions
     {
-        public OcelJsonSinkOptions(string directory, string fileName, RollingPeriod rollingPeriod, global::OCEL.Types.Formatting formatting)
+        public OcelJsonSinkOptions(string directory, string fileName, RollingPeriod rollingPeriod, global::OCEL.Types.Formatting formatting, string prefix = null)
         {
             Directory = directory;
             FileName = fileName;
             RollingPeriod = rollingPeriod;
             Formatting = formatting;
+            Prefix = prefix;
         }
 
         /// <summary>
@@ -108,12 +122,13 @@ namespace Serilog.Sinks.OCEL
 
     public class OcelXmlSinkOptions : PeriodicBatchingSinkOptions
     {
-        public OcelXmlSinkOptions(string directory, string fileName, RollingPeriod rollingPeriod, global::OCEL.Types.Formatting formatting)
+        public OcelXmlSinkOptions(string directory, string fileName, RollingPeriod rollingPeriod, global::OCEL.Types.Formatting formatting, string prefix = null)
         {
             Directory = directory;
             FileName = fileName;
             RollingPeriod = rollingPeriod;
             Formatting = formatting;
+            Prefix = prefix;
         }
 
         /// <summary>

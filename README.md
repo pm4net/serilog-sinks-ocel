@@ -20,6 +20,31 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 ```
 
+Or via `appsettings.json`:
+
+```json
+"Serilog": {
+    "MinimumLevel": {
+      "Default": "Information"
+    },
+    "WriteTo": [
+      {
+        "Name": "Console"
+      },
+      {
+        "Name": "OcelJsonSink",
+        "Args": {
+          "directory": "",
+          "fileName": "log.jsonocel",
+          "rollingPeriod": "Month",
+          "formatting": "Indented",
+          "prefix": "myprefix_"
+        }
+      }
+    ]
+  }
+```
+
 # Supported formats
 
 The OCEL standard is defined for both JSON and XML. Both include a validation schema that is used by the library to validate input.

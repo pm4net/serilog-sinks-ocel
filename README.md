@@ -20,7 +20,7 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 ```
 
-Or via `appsettings.json`:
+Or via `appsettings.json` (using [Serilog.Settings.Configuration](https://github.com/serilog/serilog-settings-configuration)):
 
 ```json
 "Serilog": {

@@ -60,7 +60,7 @@ An additional useful format is to store OCEL data in document databases such as 
 
 # Performance
 
-JSON and XML files cannot simply be appended like a text file or a database table. They have to be parsed entirely before new events can be added, and then serialized again. This is very inefficient with long rolling periods and small batches. Therefore, it is **recommended to use the LiteDb sink for all logging**. The JSON and XML formats are included mostly for completeness. The [OCEL library](https://github.com/pm4net/OCEL) can be used to later convert between formats or even merge multiple files together.
+JSON and XML files cannot simply be appended like a text file or a database table. The entire file has to be rewritten each time, which is expensive. If you are going to use either the JSON or XML sink, make sure to use short rolling periods to avoid log files with more than a few thousand events at a time. It is generally **recommended to use the LiteDb sink for all logging** due to better performance, even though LiteDb files tend to be larger in size overall. The [OCEL library](https://github.com/pm4net/OCEL) can be used to later convert between formats or even merge multiple files together.
 
 # References
 

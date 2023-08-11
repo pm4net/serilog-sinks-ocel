@@ -40,6 +40,12 @@ namespace Serilog.Sinks.OCEL.Sinks
         public Task EmitBatchAsync(IEnumerable<LogEvent> batch)
         {
             var file = Helpers.DetermineFilePath(_directory, _fileName, _rollingPeriod);
+            var fileDir = Path.GetDirectoryName(file);
+            if (!string.IsNullOrWhiteSpace(fileDir))
+            {
+                Directory.CreateDirectory(fileDir);
+            }
+
             var newLog = batch.MapFromEvents(_prefix);
 
             if (_inMemoryLog == null && File.Exists(file))

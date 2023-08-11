@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using LiteDB;
 using OCEL.CSharp;
@@ -34,7 +35,14 @@ namespace Serilog.Sinks.OCEL.Sinks
 
         public Task EmitBatchAsync(IEnumerable<LogEvent> batch)
         {
-            var connString = $"Filename={Helpers.DetermineFilePath(_directory, _fileName, _rollingPeriod)}";
+            var file = Helpers.DetermineFilePath(_directory, _fileName, _rollingPeriod);
+            var fileDir = Path.GetDirectoryName(file);
+            if (!string.IsNullOrWhiteSpace(fileDir))
+            {
+                Directory.CreateDirectory(fileDir);
+            }
+
+            var connString = $"Filename={file}";
             if (!string.IsNullOrWhiteSpace(_password))
             {
                 connString += $";Password={_password}";

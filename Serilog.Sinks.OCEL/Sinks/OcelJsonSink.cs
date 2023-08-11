@@ -52,8 +52,7 @@ namespace Serilog.Sinks.OCEL.Sinks
             {
                 newLog = _inMemoryLog != null ? _inMemoryLog.MergeWith(newLog) : newLog;
             }
-
-            _inMemoryLog = newLog;
+            
             _inMemoryLog = newLog.MergeDuplicateObjects();
             var serialized = OcelJson.Serialize(_inMemoryLog, _formatting);
             File.WriteAllText(file, serialized);

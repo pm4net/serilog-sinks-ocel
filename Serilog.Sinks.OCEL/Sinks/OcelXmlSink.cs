@@ -45,15 +45,14 @@ namespace Serilog.Sinks.OCEL.Sinks
             if (_inMemoryLog == null && File.Exists(file))
             {
                 var xml = File.ReadAllText(file);
-                var log = OcelXml.Deserialize(xml);
+                var log = OcelXml.Deserialize(xml, false);
                 newLog = log.MergeWith(newLog);
             }
             else
             {
                 newLog = _inMemoryLog != null ? _inMemoryLog.MergeWith(newLog) : newLog;
             }
-
-            _inMemoryLog = newLog;
+            
             _inMemoryLog = newLog.MergeDuplicateObjects();
             var serialized = OcelXml.Serialize(_inMemoryLog, _formatting);
             File.WriteAllText(file, serialized);

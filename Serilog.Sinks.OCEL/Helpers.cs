@@ -31,7 +31,7 @@ namespace Serilog.Sinks.OCEL
                 case RollingPeriod.Day:
                     return Path.Combine(directory, $"{now:yyyy-MM-dd}_{fileName}");
                 case RollingPeriod.Week:
-                    return Path.Combine(directory, $"{now.WeekNumber()}_{fileName}");
+                    return Path.Combine(directory, $"{now:yyyy}_{now.WeekNumber()}_{fileName}");
                 case RollingPeriod.Hour:
                     return Path.Combine(directory, $"{now:yyyy-MM-dd_HH}_{fileName}");
                 case RollingPeriod.HalfHour:

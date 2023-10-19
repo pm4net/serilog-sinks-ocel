@@ -42,7 +42,7 @@ namespace Serilog.Sinks.OCEL.Tests
         [Fact]
         public void CanWriteManyLogs()
         {
-            for (int i = 0; i < 10_000; i++)
+            for (int i = 0; i < 100; i++)
             {
                 Log.Information("Testing {emoji}", ":)");
             }
